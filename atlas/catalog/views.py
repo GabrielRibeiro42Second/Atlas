@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Category
-from .serializers import CategorySerializer
+from .serializers import CategorySerializer, ProductSerializer
 
 
 class CategoryListCreate(APIView):
@@ -40,3 +40,13 @@ class CategoryDetail(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class ProductListCreate(APIView):
+    def post(self, request):
+        serializer = ProductSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        product = serializer.save()
+        return Response(
+            ProductSerializer(product).data,
+            status=status.HTTP_201_CREATED,
+        )

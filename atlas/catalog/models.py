@@ -25,5 +25,5 @@ class Category(models.Model):
 
 
 class Product(models.Model):
-    nome = models.CharField(max_length=120)
+    name = models.CharField(max_length=120)
     category = models.ForeignKey(Category, on_delete=models.PROTECT)

@@ -33,7 +33,7 @@ class CategoryTests(APITestCase):
         )
     def test_create_product(self):
         response = self.client.post(
-            "api/products",
+            "/api/products",
             {"name": "Corte maquina", "category": self.category.pk},
             format="json",
         )
