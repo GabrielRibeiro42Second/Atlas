@@ -34,3 +34,9 @@ class CategoryDetail(APIView):
         category.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
+    def put(self, request, pk):
+        category = get_object_or_404(Category, pk=pk)
+        serializer = CategorySerializer(category, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
