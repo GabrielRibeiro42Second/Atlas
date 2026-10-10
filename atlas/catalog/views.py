@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Category
-from .serializers import CategorySerializer, ProductSerializer
+from .serializers import CategorySerializer, ProductSerializer, Product
 
 
 class CategoryListCreate(APIView):
@@ -22,7 +22,6 @@ class CategoryListCreate(APIView):
             status=status.HTTP_201_CREATED,
         )
 
-
 class CategoryDetail(APIView):
     def get(self, request, pk):
         category = get_object_or_404(Category, pk=pk)
@@ -33,7 +32,7 @@ class CategoryDetail(APIView):
         category = get_object_or_404(Category, pk=pk)
         category.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-    
+
     def put(self, request, pk):
         category = get_object_or_404(Category, pk=pk)
         serializer = CategorySerializer(category, data=request.data)
@@ -42,6 +41,11 @@ class CategoryDetail(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class ProductListCreate(APIView):
+    def get(self, request):
+        products = Product.objects.all()
+        serializer = ProductSerializer(products, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     def post(self, request):
         serializer = ProductSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -50,3 +54,21 @@ class ProductListCreate(APIView):
             ProductSerializer(product).data,
             status=status.HTTP_201_CREATED,
         )
+
+class ProductDetail(APIView):
+    def get(self, request, pk):
+        product = get_object_or_404(Product, pk=pk)
+        serializer = ProductSerializer(product)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, pk):
+        product = get_object_or_404(Product, pk=pk)
+        serializer = ProductSerializer(product, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def delete(self, request, pk):
+        product = get_object_or_404(Product, pk=pk)
+        product.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
