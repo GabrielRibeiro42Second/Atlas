@@ -27,20 +27,23 @@ class CategoryTests(APITestCase):
 
     def test_create_category(self):
         response = self.client.post(
-            f"/api/categories/{self.company.pk}",
+            "/api/categories",
             {"name": "Lavagem", "company": self.company.pk},
             format="json",
         )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["name"], "Lavagem")
+
     def test_delete_category(self):
         response = self.client.delete(
-            f"/api/categories/{self.company.pk}",
+            f"/api/categories/{self.category.pk}",
         )
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(Category.objects.filter(pk=self.category.pk).exists())
 
     def test_delete_category_not_found(self):
         response = self.client.delete(
-            "api/categories/99999"
+            "/api/categories/99999"
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
