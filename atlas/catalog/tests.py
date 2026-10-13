@@ -47,11 +47,28 @@ class CategoryTests(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_delete_category_with_product(self):
+        Product.objects.create(name="Corte navalha", category=self.category)
+        response = self.client.delete(
+            f"/api/categories/{self.category.pk}",
+        )
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertTrue(Category.objects.filter(pk=self.category.pk).exists())
+
     def test_lists_category(self):
         Category.objects.create(name="Barba", company=self.company)
         response = self.client.get("/api/categories")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
+
+    def test_create_category_duplicate_name(self):
+        response = self.client.post(
+            "/api/categories",
+            {"name": "Cortes", "company": self.company.pk},
+            format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
 
 class ProductTests(APITestCase):
     def setUp(self):
@@ -104,5 +121,12 @@ class ProductTests(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-
-
+class CompanyTest(APITestCase):
+    def test_create_company(self):
+        response = self.client.post(
+            "/api/companies",
+            {"name": "Mercado do Bairro"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["name"], "Mercado do Bairro")

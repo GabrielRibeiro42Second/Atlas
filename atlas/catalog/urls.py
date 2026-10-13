@@ -7,4 +7,5 @@ urlpatterns = [
     path("categories/<int:pk>", views.CategoryDetail.as_view(), name="category-detail"),
     path("products", views.ProductListCreate.as_view(), name="product-list"),
     path("products/<int:pk>", views.ProductDetail.as_view(), name="product-detail"),
+    path("companies", views.CompanyListCreate.as_view(), name="company-list"),
 ]

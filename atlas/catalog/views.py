@@ -2,9 +2,10 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.db.models.deletion import ProtectedError
 
-from .models import Category, Product
-from .serializers import CategorySerializer, ProductSerializer 
+from .models import Company, Category, Product
+from .serializers import CompanySerializer, CategorySerializer, ProductSerializer 
 
 
 class CategoryListCreate(APIView):
@@ -30,7 +31,10 @@ class CategoryDetail(APIView):
 
     def delete(self, request, pk):
         category = get_object_or_404(Category, pk=pk)
-        category.delete()
+        try:
+            category.delete()
+        except ProtectedError:
+           return Response({"detail": "That is not allowed"}, status=status.HTTP_409_CONFLICT)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def put(self, request, pk):
@@ -72,3 +76,14 @@ class ProductDetail(APIView):
         product = get_object_or_404(Product, pk=pk)
         product.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class CompanyListCreate(APIView):
+    def post(self, request):
+        serializer = CompanySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        company = serializer.save()
+        return Response(
+            CompanySerializer(company).data,
+            status=status.HTTP_201_CREATED,
+        )
+
