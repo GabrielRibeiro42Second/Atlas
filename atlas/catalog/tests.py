@@ -122,6 +122,11 @@ class ProductTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 class CompanyTest(APITestCase):
+    def setUp(self):
+        self.company = Company.objects.create(
+            name= "Barbearia do Matheus",
+        )
+
     def test_create_company(self):
         response = self.client.post(
             "/api/companies",
@@ -130,3 +135,19 @@ class CompanyTest(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["name"], "Mercado do Bairro")
+
+    def test_get_company(self):
+        response = self.client.get(
+            f"/api/companies/{self.company.pk}",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["name"], "Barbearia do Matheus")
+
+    def test_update_company(self):
+        response = self.client.post(
+            f"/api/companies/{self.company.pk}",
+            {"name": "Barbearia do Matheus Centro"},
+            format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["name"], "Barbearia do Matheus Centro")

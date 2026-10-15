@@ -87,3 +87,8 @@ class CompanyListCreate(APIView):
             status=status.HTTP_201_CREATED,
         )
 
+class CompanyDetail(APIView):
+    def get(self, request, pk):
+        company = get_object_or_404(Company, pk=pk)
+        serializer = CompanySerializer(company)
+        return Response(serializer.data, status=status.HTTP_200_OK)
