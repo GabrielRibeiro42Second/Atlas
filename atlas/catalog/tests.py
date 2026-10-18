@@ -144,10 +144,17 @@ class CompanyTest(APITestCase):
         self.assertEqual(response.data["name"], "Barbearia do Matheus")
 
     def test_update_company(self):
-        response = self.client.post(
+        response = self.client.put(
             f"/api/companies/{self.company.pk}",
-            {"name": "Barbearia do Matheus Centro"},
-            format="json"
+            {"name": "Barbearia do Matheus filial"},
+            format = "json"
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["name"], "Barbearia do Matheus Centro")
+        self.assertEqual(response.data["name"], "Barbearia do Matheus filial" )
+
+    def test_delete_company(self):
+        response = self.client.delete(
+            f"/api/companies/{self.company.pk}"
+        )
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Company.objects.filter(pk=self.company.pk).exists())

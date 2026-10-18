@@ -92,3 +92,18 @@ class CompanyDetail(APIView):
         company = get_object_or_404(Company, pk=pk)
         serializer = CompanySerializer(company)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, pk):
+        company = get_object_or_404(Company, pk=pk)
+        serializer = CompanySerializer(company, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        company = serializer.save()
+        return Response(
+            CompanySerializer(company).data,
+            status=status.HTTP_200_OK,
+        )
+
+    def delete(self, request, pk):
+        company = get_object_or_404(Company, pk=pk)
+        company.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
