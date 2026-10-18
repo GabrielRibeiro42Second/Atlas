@@ -4,8 +4,8 @@ SaaS multi-tenant de catálogo digital para pequenos negócios (barbearias,
 restaurantes, lojas de material de construção etc.). Cada empresa gerencia suas
 próprias categorias e produtos/serviços via API REST.
 
-**Status:** V1 (REST API) — em andamento. Domínio e CRUD de `Category` e
-`Product` implementados e cobertos por testes.
+**Status:** V1 (REST API) — concluída. Domínio e CRUD de `Company`, `Category`
+e `Product` implementados e cobertos por testes.
 
 ## Stack
 
@@ -24,9 +24,11 @@ próprias categorias e produtos/serviços via API REST.
       ▼
     Product
 
-Decisões de exclusão: apagar uma **empresa** apaga tudo (`CASCADE`); apagar uma
-**categoria que ainda tem produtos** é barrada (`PROTECT`); categoria e produto
-podem ser apagados livremente (`CASCADE` na cadeia Product → Category → Company).
+Decisões de exclusão: apagar uma **empresa** remove seus produtos
+explicitamente em uma transação e, em seguida, suas categorias e a própria
+empresa; a exclusão de uma **categoria que ainda tem produtos** é barrada (`PROTECT`);
+produtos podem ser apagados livremente. A relação `Category → Company` usa
+`CASCADE`.
 
 ## Endpoints
 
@@ -34,6 +36,11 @@ Base: `/api`
 
 | Método | Rota | Ação | Sucesso |
 |---|---|---|---|
+| GET | `/companies` | lista empresas | `200` |
+| POST | `/companies` | cria empresa | `201` |
+| GET | `/companies/<pk>` | lê uma empresa | `200` |
+| PUT | `/companies/<pk>` | atualiza uma empresa | `200` |
+| DELETE | `/companies/<pk>` | apaga uma empresa e seus dados | `204` |
 | GET | `/categories` | lista categorias | `200` |
 | POST | `/categories` | cria categoria | `201` |
 | GET | `/categories/<pk>` | lê uma categoria | `200` |
@@ -59,6 +66,9 @@ curl -X POST http://127.0.0.1:8000/api/categories \
 # listar produtos
 curl http://127.0.0.1:8000/api/products
 
+# listar empresas
+curl http://127.0.0.1:8000/api/companies
+
 # apagar categoria
 curl -X DELETE http://127.0.0.1:8000/api/categories/1
 ```
@@ -82,21 +92,22 @@ API disponível em `http://127.0.0.1:8000/api/`.
 
 ## Testes
 
-12 testes de API (TDD — ciclos RED-GREEN-REFACTOR):
+19 testes de API (TDD — ciclos RED-GREEN-REFACTOR):
 
 ```bash
 .venv/bin/python manage.py test catalog -v 2
 ```
 
-Cobertura: CRUD completo de categorias e produtos, listagens, caminhos de
-erro (`404`) e criação de categoria duplicada.
+Cobertura: CRUD completo de empresas, categorias e produtos, listagens,
+cascata de exclusão de empresa, proteção de categoria com produtos, caminhos
+de erro (`404`) e criação de categoria duplicada.
 
 ## Roadmap
 
 | Versão | Escopo |
 |---|---|
 | V0 | Domínio (Company, Category, Product) — concluído |
-| V1 | REST API + testes — em andamento |
+| V1 | REST API + testes — concluído |
 | V2 | PostgreSQL + Docker |
 | V3 | Autenticação (User, login, autorização) |
 | V4 | Multi-tenancy (isolamento de dados entre empresas) |

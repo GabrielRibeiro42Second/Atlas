@@ -86,9 +86,14 @@ class ProductTests(APITestCase):
         self.assertEqual(response.data["name"], "Corte maquina")
 
     def test_list_product(self):
-        Product.objects.create(name="Corte tesoura", category=self.category)
+        Product.objects.create(
+            name="Corte tesoura",
+            category=self.category,
+        )
         response = self.client.get("/api/products")
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
         names = [item["name"] for item in response.data]
         self.assertCountEqual(names, ["Corte Maquina", "Corte tesoura"])
 
@@ -153,8 +158,33 @@ class CompanyTest(APITestCase):
         self.assertEqual(response.data["name"], "Barbearia do Matheus filial" )
 
     def test_delete_company(self):
+        category = Category.objects.create(
+            name = "Cortes",
+            company= self.company
+        )
+        product = Product.objects.create(
+            name = "Corte Navalha",
+            category = category,
+        )
         response = self.client.delete(
             f"/api/companies/{self.company.pk}"
         )
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(Company.objects.filter(pk=self.company.pk).exists())
+        self.assertFalse(Category.objects.filter(pk=category.pk).exists())
+        self.assertFalse(Product.objects.filter(pk=product.pk).exists())
+
+    def test_list_company(self):
+        Company.objects.create(
+            name= "Barbearia do Matheus filial",
+        )
+        response = self.client.get("/api/companies")
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        names = [item["name"] for item in response.data]
+        self.assertCountEqual(
+            names,
+            ["Barbearia do Matheus", "Barbearia do Matheus filial"],
+        )
+

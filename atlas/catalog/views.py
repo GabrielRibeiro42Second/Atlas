@@ -6,6 +6,7 @@ from django.db.models.deletion import ProtectedError
 
 from .models import Company, Category, Product
 from .serializers import CompanySerializer, CategorySerializer, ProductSerializer 
+from .services import delete_company
 
 
 class CategoryListCreate(APIView):
@@ -86,6 +87,11 @@ class CompanyListCreate(APIView):
             CompanySerializer(company).data,
             status=status.HTTP_201_CREATED,
         )
+    
+    def get(self, request):
+        companies = Company.objects.all()
+        serializer = CompanySerializer(companies, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class CompanyDetail(APIView):
     def get(self, request, pk):
@@ -105,5 +111,6 @@ class CompanyDetail(APIView):
 
     def delete(self, request, pk):
         company = get_object_or_404(Company, pk=pk)
-        company.delete()
+        delete_company(company)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
